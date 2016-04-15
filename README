@@ -1,5 +1,5 @@
 # Collaborative real-time text editor (PHP WebSocket + TinyMCE).
-# Based on [Flynsarmy/PHPWebSocket-Chat](https://github.com/Flynsarmy/PHPWebSocket-Chat)
+# Based on https://github.com/Flynsarmy/PHPWebSocket-Chat
 
 To run, open a terminal and type:
 php5 ./server.php
