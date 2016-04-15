@@ -1,4 +1,5 @@
-# A simple PHP WebSocket server example.
+# Collaborative real-time text editor (PHP WebSocket + TinyMCE).
+# Based on <a href="https://github.com/Flynsarmy/PHPWebSocket-Chat">Flynsarmy/PHPWebSocket-Chat</a>
 
 To run, open a terminal and type:
 php5 ./server.php
