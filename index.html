@@ -3,18 +3,14 @@
 <head>
 	<meta charset='UTF-8' />
 	<style>
-		input, textarea {border:1px solid #CCC;margin:0px;padding:0px}
-
-		#body {max-width:800px;margin:auto}
-		#log {width:100%;height:200px}
-		#message {width:100%;line-height:20px}
+		body {margin:20px;font-family:Verdana, Geneva, sans-serif;}
+		#editor {height: 240px;}
 	</style>
 	<script src="https://cdn.tinymce.com/4/tinymce.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 	<script src="fancywebsocket.js"></script>
 	<script>
-		var Server;
-		
+		var Server;		
 
 		function send(text) {
 			Server.send( 'message', text );
@@ -26,31 +22,51 @@
 				selector:"#editor",
 				setup: function(ed) {
 				    ed.on("change", function(e) {
-				        console.log("change");
 				        send(ed.getContent());
 				    });
 				    ed.on("keyup", function(e) {
-				        console.log("keyup");
 				        send(ed.getContent());
 				    });
 				}
 			});
 
-			// Let the user know we're connected
-			Server.bind('open', function() {
-				// connected
-				console.log("CONNECTED");
+			// let the user know we're connected
+			Server.bind("open", function() {
+				$("#status").text("connected");
 			});
 
-			// Disconnection occurred.
-			Server.bind('close', function(data) {
-				// disconnected
-				console.log("DISCONNECTED");
+			// disconnection occurred
+			Server.bind("close", function(data) {
+				$("#status").text("disconnected");
 			});
 
-			// Log any messages sent from server
-			Server.bind('message', function(payload) {
-				tinymce.activeEditor.setContent(payload);
+			// process messages sent from server
+			Server.bind("message", function(payload) {
+				// process new user
+				if (payload.indexOf("[CLIENT:JOINED]") === 0) {
+					var p = payload.split(" ");
+					$("#users").append("<li id='"+ p[1] + "'>" + p[2] + "</li>");
+				// user left
+				} else if (payload.indexOf("[CLIENT:LEFT]") === 0) {
+					var p = payload.split(" ");
+					$("#"+ p[1]).remove();
+				// show active users when joined
+				} else if (payload.indexOf("[CLIENTS:LIST]") === 0) {
+					var p = payload.split(" ");
+					
+					if (p[1] && p[1].length !== 0) {
+						var client = p[1].split(";");
+						for (var i = 0; i < client.length; i++) {
+							
+							if (client[i] && client[i].length !== 0) {
+								var c = client[i].split(",");
+								$("#users").append("<li id='"+ c[0] + "'>" + c[1] + "</li>");
+							}
+						}
+					}
+				} else {
+					tinymce.activeEditor.setContent(payload);
+				}
 			});
 
 			Server.connect();
@@ -59,8 +75,12 @@
 </head>
 
 <body>
+	<div id="status-wrapper">
+		Status: <span id="status"></span>
+	</div>
 	<textarea id="editor"></textarea>
-	
+	<h3>Users:</h3>
+	<ul id="users"></ul>
 </body>
 
 </html>
